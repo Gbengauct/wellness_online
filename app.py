@@ -5,8 +5,9 @@ import os
 
 app = Flask(__name__)
 
-# 🔑 PASTE YOUR GOOGLE GEMINI API KEY HERE
-GEMINI_API_KEY =  url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
+# 🔑 Get API key from environment (safe!)
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -19,7 +20,6 @@ def chat():
         return jsonify({'response': 'Please type a message.'})
     
     try:
-        # Call Google Gemini API
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
         
         payload = {

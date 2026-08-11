@@ -1,11 +1,10 @@
 from flask import Flask, render_template, request, jsonify
 import requests
-import json
 import os
 
 app = Flask(__name__)
 
-# 🔑 Get API key from environment (safe!)
+# This reads the API key from the Render Environment
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 @app.route('/')
@@ -20,6 +19,7 @@ def chat():
         return jsonify({'response': 'Please type a message.'})
     
     try:
+        # This is the correct Gemini API URL
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
         
         payload = {
@@ -37,7 +37,9 @@ def chat():
             ai_response = data['candidates'][0]['content']['parts'][0]['text']
             return jsonify({'response': ai_response})
         else:
-            return jsonify({'response': f'⚠️ API Error: {data.get("error", {}).get("message", "Unknown error")}'})
+            # This will show you the exact API error in the chat
+            error_msg = data.get('error', {}).get('message', 'Unknown API error')
+            return jsonify({'response': f'⚠️ API Error: {error_msg}'})
             
     except Exception as e:
         return jsonify({'response': f'⚠️ Error: {str(e)}'})

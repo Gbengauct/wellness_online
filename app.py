@@ -20,7 +20,7 @@ def chat():
     
     try:
         # This is the correct Gemini API URL
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={GEMINI_API_KEY}"
+       url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key={GEMINI_API_KEY}"
         
         payload = {
             "contents": [{

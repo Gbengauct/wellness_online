@@ -19,8 +19,8 @@ def chat():
         return jsonify({'response': 'Please type a message.'})
     
     try:
-        # ✅ USING THE CORRECT, ACTIVE MODEL
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+        # ✅ USING THE CORRECT, ACTIVE MODEL (gemini-2.5-flash-lite)
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key={GEMINI_API_KEY}"
         
         payload = {
             "contents": [{

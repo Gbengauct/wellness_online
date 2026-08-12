@@ -4,7 +4,7 @@ import os
 
 app = Flask(__name__)
 
-# This reads the API key from the Render Environment
+# 🔑 This reads the key from Render's Environment
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 @app.route('/')
@@ -19,8 +19,8 @@ def chat():
         return jsonify({'response': 'Please type a message.'})
     
     try:
-        # This is the correct Gemini API URL
-       url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key={GEMINI_API_KEY}"
+        # ✅ USING THE CORRECT, ACTIVE MODEL
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
         
         payload = {
             "contents": [{
@@ -37,7 +37,6 @@ def chat():
             ai_response = data['candidates'][0]['content']['parts'][0]['text']
             return jsonify({'response': ai_response})
         else:
-            # This will show you the exact API error in the chat
             error_msg = data.get('error', {}).get('message', 'Unknown API error')
             return jsonify({'response': f'⚠️ API Error: {error_msg}'})
             

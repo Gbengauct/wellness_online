@@ -1,14 +1,12 @@
 from flask import Flask, render_template, request, jsonify
 import requests
 import os
+import json
 
 app = Flask(__name__)
 
-# 🔑 This reads the key from Render's Environment
+# 🔑 Get API key from environment
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
-
-# ✅ The new, correct API endpoint for Interactions API
-API_URL = "https://generativelanguage.googleapis.com/v1beta2/interactions"
 
 @app.route('/')
 def home():
@@ -21,50 +19,48 @@ def chat():
     if not user_message:
         return jsonify({'response': 'Please type a message.'})
     
+    # Check if API key exists
+    if not GEMINI_API_KEY:
+        return jsonify({'response': '⚠️ API key not configured. Please add GEMINI_API_KEY to environment variables.'})
+    
     try:
-        # Using the new Interactions API format
+        # ✅ USING THE SIMPLEST, MOST RELIABLE MODEL
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
+        
         payload = {
-            "model": "gemini-3.6-flash",  # ✅ Active model
-            "input": user_message,
-            # Optional: store the conversation history for context
-            # "previous_interaction_id": "some_id"  # For multi-turn conversations
+            "contents": [{
+                "parts": [{
+                    "text": f"You are a compassionate Wellness Guide AI. Provide helpful, empathetic, and practical wellness advice. User: {user_message}"
+                }]
+            }]
         }
         
         headers = {
-            "Content-Type": "application/json",
-            "x-goog-api-key": GEMINI_API_KEY
+            "Content-Type": "application/json"
         }
         
-        response = requests.post(API_URL, json=payload, headers=headers)
-        data = response.json()
+        response = requests.post(url, json=payload, headers=headers, timeout=30)
+        
+        # Check if response is valid JSON
+        try:
+            data = response.json()
+        except:
+            return jsonify({'response': f'⚠️ Invalid response from API. Status: {response.status_code}. Please check your API key.'})
         
         if response.status_code == 200:
-            # The new API returns a different structure
-            # The response is in the 'steps' array
-            ai_response = None
-            for step in data.get('steps', []):
-                if step.get('type') == 'model_output':
-                    # Extract text from the content array
-                    for content in step.get('content', []):
-                        if content.get('type') == 'text':
-                            ai_response = content.get('text')
-                            break
-                    if ai_response:
-                        break
-            
-            if ai_response:
+            try:
+                ai_response = data['candidates'][0]['content']['parts'][0]['text']
                 return jsonify({'response': ai_response})
-            else:
-                # Fallback: try to get output_text if available
-                output_text = data.get('output_text')
-                if output_text:
-                    return jsonify({'response': output_text})
-                else:
-                    return jsonify({'response': '⚠️ No response from AI. Please try again.'})
+            except (KeyError, IndexError):
+                return jsonify({'response': f'⚠️ Unexpected API response structure: {data}'})
         else:
-            error_msg = data.get('error', {}).get('message', 'Unknown API error')
-            return jsonify({'response': f'⚠️ API Error: {error_msg}'})
+            error_msg = data.get('error', {}).get('message', 'Unknown error')
+            return jsonify({'response': f'⚠️ API Error ({response.status_code}): {error_msg}'})
             
+    except requests.exceptions.Timeout:
+        return jsonify({'response': '⏰ Request timed out. Please try again.'})
+    except requests.exceptions.ConnectionError:
+        return jsonify({'response': '🔌 Connection error. Please check your internet.'})
     except Exception as e:
         return jsonify({'response': f'⚠️ Error: {str(e)}'})
 

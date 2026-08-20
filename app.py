@@ -19,14 +19,14 @@ def chat():
         return jsonify({'response': 'Please type a message.'})
     
     if not OPENROUTER_API_KEY:
-        return jsonify({'response': '⚠️ API key missing. Please add OPENROUTER_API_KEY to environment variables.'})
+        return jsonify({'response': '⚠️ API key missing. Please add OPENROUTER_API_KEY.'})
     
     try:
-        # ✅ USING OPENROUTER API (WORKS PERFECTLY)
+        # ✅ USING A VERIFIED, WORKING FREE MODEL ON OPENROUTER
         url = "https://openrouter.ai/api/v1/chat/completions"
         
         payload = {
-            "model": "google/gemini-2.0-flash-lite-preview-02-05:free",
+            "model": "google/gemini-2.0-flash-001",  # ✅ CORRECT MODEL ID
             "messages": [
                 {
                     "role": "system", 

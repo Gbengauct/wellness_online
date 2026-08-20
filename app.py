@@ -5,7 +5,7 @@ import os
 app = Flask(__name__)
 
 # 🔑 Get API key from environment
-OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
+MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
 
 @app.route('/')
 def home():
@@ -18,15 +18,15 @@ def chat():
     if not user_message:
         return jsonify({'response': 'Please type a message.'})
     
-    if not OPENROUTER_API_KEY:
-        return jsonify({'response': '⚠️ API key missing. Please add OPENROUTER_API_KEY.'})
+    if not MISTRAL_API_KEY:
+        return jsonify({'response': '⚠️ API key missing. Please add MISTRAL_API_KEY to environment variables.'})
     
     try:
-        # ✅ USING A VERIFIED, WORKING FREE MODEL ON OPENROUTER
-        url = "https://openrouter.ai/api/v1/chat/completions"
+        # ✅ USING MISTRAL AI (FREE AND WORKING)
+        url = "https://api.mistral.ai/v1/chat/completions"
         
         payload = {
-            "model": "google/gemini-2.0-flash-001",  # ✅ CORRECT MODEL ID
+            "model": "mistral-tiny",
             "messages": [
                 {
                     "role": "system", 
@@ -41,9 +41,7 @@ def chat():
         
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-            "HTTP-Referer": "https://wellness-guide-ai.onrender.com",
-            "X-Title": "Wellness Guide AI"
+            "Authorization": f"Bearer {MISTRAL_API_KEY}"
         }
         
         response = requests.post(url, json=payload, headers=headers, timeout=30)
